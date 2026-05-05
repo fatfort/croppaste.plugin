@@ -1,0 +1,10 @@
+
+=== v1.6h dispatch log opened pid=65332 epoch=1777864257 ===
+[#1] self=0xffff9dd24f20 vt=0x16a3df0 uuid=c751e8a4-c51e-d04f-9aaa-86fb0afd8cd7 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#2] self=0xffff9f8b6110 vt=0x16a3df0 uuid=00000000-0000-0000-0000-000000000000 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#3] self=0xffff9f8b6390 vt=0x16a3df0 uuid=00000000-0000-0000-0000-000000000000 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#4] self=0x40b51420 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=1 bounds@0x60=(0,0,246,343) branch=hit->drawImage
+[#5] self=0x40b51420 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=1 bounds@0x60=(0,0,246,343) branch=hit->drawImage
+[#6] self=0x40b51420 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=1 bounds@0x60=(0,0,246,343) branch=hit->drawImage
+[#7] self=0xffff900054e0 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#8] self=0x402ab580 vt=0x16a3df0 uuid=c751e8a4-c51e-d04f-9aaa-86fb0afd8cd7 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint

@@ -1,0 +1,93 @@
+H3 reproducer result — captured 2026-05-04 on ferrari (rMPP 11.8", USB 10.11.99.1)
+Binary: src/repro_h3/repro_h3_mprotect_fork (aarch64)
+Kernel: Linux imx8mm-ferrari 6.12.49+git-imx8mm-ferrari-g122eda1b63d9 #1 SMP PREEMPT Thu Feb  5 09:35:18 UTC 2026 aarch64 GNU/Linux
+Command: scp src/repro_h3/repro_h3_mprotect_fork root@10.11.99.1:/tmp/ && ssh root@10.11.99.1 'chmod +x /tmp/repro_h3_mprotect_fork && /tmp/repro_h3_mprotect_fork'
+Exit code: 0
+
+Verdict: H3 DENIED. mprotect(file-backed page, R->RW->R) + fork+execve does NOT reproduce the renderer crash. Both control (no mprotect) and patched (post-mprotect dance) passes ran 32 fork+execve iterations with 32 ok / 0 nonzero / 0 crashes. The renderer-crash mechanism observed in v1.6d (PDF renderer killed) is something else — not a side-effect of writing-then-restoring a file-backed page in the parent process.
+
+Caveat: the binary prints parent pid (51009) and per-iteration "alive" lines but does NOT print child PIDs. Cleanliness inferred from iteration counts (32 control + 32 patched, all reporting "alive") rather than enumerated child PIDs. If next session wants explicit child-PID confirmation, recompile to add getpid() to the child print.
+
+Implication for next session: H4 hypothesis space — the crash is xochitl-/Qt-/PDFium-specific, not a generic mprotect-fork-exec interaction. Likely candidates: Qt internal mutex held across fork (matches gotcha_xovi_global_hook_fork.md memory), PDFium global state torn by parent-side patch, vtable patch racing with renderer subprocess's vtable lookup, signal-handler/sigaction state leaking into the child. The C-level isolator was insufficient because none of those Qt/PDFium-specific conditions exist in a bare C reproducer.
+
+Verbatim stdout/stderr:
+
+--- BEGIN H3 REPRO ---
+[repro] H3 isolator: mprotect(file-backed page, R->RW->R) + fork+execve.
+[repro] pid=51009 page_size=4096
+[repro] === control pass: 32 fork+exec iterations ===
+[control child 0] alive
+[control child 1] alive
+[control child 2] alive
+[control child 3] alive
+[control child 4] alive
+[control child 5] alive
+[control child 6] alive
+[control child 7] alive
+[control child 8] alive
+[control child 9] alive
+[control child 10] alive
+[control child 11] alive
+[control child 12] alive
+[control child 13] alive
+[control child 14] alive
+[control child 15] alive
+[control child 16] alive
+[control child 17] alive
+[control child 18] alive
+[control child 19] alive
+[control child 20] alive
+[control child 21] alive
+[control child 22] alive
+[control child 23] alive
+[control child 24] alive
+[control child 25] alive
+[control child 26] alive
+[control child 27] alive
+[control child 28] alive
+[control child 29] alive
+[control child 30] alive
+[control child 31] alive
+[repro] control SUMMARY: ok=32 nonzero=0 crashes=0
+[repro] mmap'd /proc/self/exe page @ 0xffff8408a000 (fd=3)
+[repro] mprotect+write+restore done.
+[repro] === patched pass: 32 fork+exec iterations ===
+[patched child 0] alive
+[patched child 1] alive
+[patched child 2] alive
+[patched child 3] alive
+[patched child 4] alive
+[patched child 5] alive
+[patched child 6] alive
+[patched child 7] alive
+[patched child 8] alive
+[patched child 9] alive
+[patched child 10] alive
+[patched child 11] alive
+[patched child 12] alive
+[patched child 13] alive
+[patched child 14] alive
+[patched child 15] alive
+[patched child 16] alive
+[patched child 17] alive
+[patched child 18] alive
+[patched child 19] alive
+[patched child 20] alive
+[patched child 21] alive
+[patched child 22] alive
+[patched child 23] alive
+[patched child 24] alive
+[patched child 25] alive
+[patched child 26] alive
+[patched child 27] alive
+[patched child 28] alive
+[patched child 29] alive
+[patched child 30] alive
+[patched child 31] alive
+[repro] patched SUMMARY: ok=32 nonzero=0 crashes=0
+
+[repro] === H3 VERDICT ===
+[repro] control:  ok=32 nonzero=0 crashes=0
+[repro] patched:  ok=32 nonzero=0 crashes=0
+[repro] H3 DENIED: fork+exec works identically before and after mprotect dance. Renderer-crash mechanism is something else (xochitl- or Qt-specific). Widen search.
+--- EXIT: 0 ---

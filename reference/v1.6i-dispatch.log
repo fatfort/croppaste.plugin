@@ -1,0 +1,33 @@
+
+=== v1.6i dispatch log opened pid=66296 epoch=1777865090 ===
+[#1] self=0xffff5c9e1ff0 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#2] self=0xffff5ca9d030 vt=0x16a3df0 uuid=c751e8a4-c51e-d04f-9aaa-86fb0afd8cd7 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#3] self=0x16d29ee0 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(0,0,252,398) branch=hit->drawImage
+[#4] self=0x16d29ee0 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(0,0,252,398) branch=hit->drawImage
+[#5] self=0xffff5c9e1ff0 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#6] self=0x16d29ee0 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(0,0,252,398) branch=hit->drawImage
+[#7] self=0xffff60035720 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#8] self=0xffff60035810 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#9] self=0xffff60152f40 vt=0x16a3df0 uuid=c751e8a4-c51e-d04f-9aaa-86fb0afd8cd7 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#10] self=0xffff54215640 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#11] self=0xffff54215730 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#12] self=0xffff5411b640 vt=0x16a3df0 uuid=c751e8a4-c51e-d04f-9aaa-86fb0afd8cd7 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#13] self=0xffff74549e90 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(0,0,880,1515) branch=hit->drawImage
+[#14] self=0xffff74549e90 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(0,0,880,1515) branch=hit->drawImage
+[#15] self=0xffff54215730 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#16] self=0x14f41c60 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(0,0,880,1515) branch=hit->drawImage
+[#17] self=0x14f41c60 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(0,0,880,1515) branch=hit->drawImage
+[#18] self=0xffff54215640 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#19] self=0xffff54215730 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#20] self=0x14f41c60 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(0,0,880,1515) branch=hit->drawImage
+[#21] self=0xffff60054240 vt=0x16a3df0 uuid=817ecb65-8136-6949-a1c9-dcb9b0101331 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#22] self=0xffff60054330 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#23] self=0xffff60054510 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#24] self=0xffff600339d0 vt=0x16a3df0 uuid=c751e8a4-c51e-d04f-9aaa-86fb0afd8cd7 hit=0 bounds@0x60=(-0.5,-0.5,1,1) branch=miss->origPaint
+[#25] self=0xffff60054510 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#26] self=0xffff60054510 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#27] self=0xffff60054510 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#28] self=0xffff60054330 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#29] self=0xffff60054510 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#30] self=0xffff60054330 vt=0x16a3df0 uuid=6074b057-d828-2640-aff8-1bfba54c3d72 hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
+[#31] self=0xffff600556a0 vt=0x16a3df0 uuid=5716db37-5518-4449-ae56-e758709c464c hit=1 bounds@0x60=(-0.5,-0.5,1,1) branch=hit->drawImage
