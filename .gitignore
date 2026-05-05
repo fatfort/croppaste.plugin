@@ -1,0 +1,17 @@
+# Build outputs
+build/
+src/clipboard-injector/build/
+src/clipboard-injector/clipboard-injector.so
+src/clipboard-injector/clipboard-injector.qmd
+src/clipboard-injector/Makefile
+src/clipboard-injector/.qmake.stash
+
+# Backup files
+*.bak
+*.bak2
+
+# OS / editor cruft
+.DS_Store
+
+# Local Claude Code state — not for VC
+.claude/
