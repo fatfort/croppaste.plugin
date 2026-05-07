@@ -28,6 +28,13 @@ static void cropPaste_so_loaded(void) {
 // don't get color rendering for our captures.
 extern int cropPaste_installPaintHook(void);
 
+// C wrapper around cropPaste::firmware() — returns 1 on porsche
+// (imx93/chiappa hostname), 0 on ferrari (imx8mm/ferrari) or any
+// unmatched hostname (firmware() defaults the unknown case to ferrari).
+// Drives the bundled-qmd dispatch in _xovi_construct(). Defined in
+// firmware_addrs.cpp.
+extern int cropPaste_isPorsche(void);
+
 /* FramebufferConfig matches framebuffer-spy.h */
 struct FramebufferConfig {
     void *framebufferAddress;
@@ -80,7 +87,25 @@ void _xovi_construct() {
 	printf("[clipboard-injector] Registering ClipboardInjector\n");
     Environment->requireExtension("qt-resource-rebuilder", 0, 2, 0);
 	registerQmldiff();
-	qt_resource_rebuilder$qmldiff_add_external_diff(r$clipboard_injector, "Clipboard injector");
+
+	// Per-device qmd dispatch. The two bundled qmds differ only in the
+	// SettingsMenu ("more tools" 3-dots foldout) inject:
+	//   ferrari: long-axis Toolbar inject + cropOverlay + foldout entry
+	//            for "Capture region" (the only cropPaste access point on
+	//            ferrari's short-axis toolbar).
+	//   porsche: long-axis Toolbar inject + cropOverlay only. The foldout
+	//            entry is omitted because penSlots-porsche.qml-diff
+	//            already injects a 3-button RowLayout (penSlots,
+	//            eyeDropper, cropPaste) into the same SettingsMenu slot —
+	//            having both produced a duplicate "Capture region"
+	//            alongside the row.
+	if (cropPaste_isPorsche()) {
+		fprintf(stderr, "[clipboard-injector] device=porsche, registering porsche qmd\n");
+		qt_resource_rebuilder$qmldiff_add_external_diff(r$clipboard_injector_porsche, "Clipboard injector (porsche)");
+	} else {
+		fprintf(stderr, "[clipboard-injector] device=ferrari, registering ferrari qmd\n");
+		qt_resource_rebuilder$qmldiff_add_external_diff(r$clipboard_injector_ferrari, "Clipboard injector (ferrari)");
+	}
 
 	// Install the global SceneImageItem paint() hook. Must happen before
 	// any rendering. Patches one 8-byte slot in .rodata — atomic write,

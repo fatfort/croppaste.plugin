@@ -82,3 +82,9 @@ const FirmwareAddrs& firmware() {
 }
 
 }  // namespace cropPaste
+
+// C-linkage wrapper so entry.c can dispatch the bundled-qmd registration
+// by device without pulling in C++. Caches via firmware()'s static.
+extern "C" int cropPaste_isPorsche(void) {
+    return cropPaste::firmware().device == cropPaste::Device::Porsche ? 1 : 0;
+}

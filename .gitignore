@@ -3,6 +3,8 @@ build/
 src/clipboard-injector/build/
 src/clipboard-injector/clipboard-injector.so
 src/clipboard-injector/clipboard-injector.qmd
+src/clipboard-injector/clipboard-injector-ferrari.qmd
+src/clipboard-injector/clipboard-injector-porsche.qmd
 src/clipboard-injector/Makefile
 src/clipboard-injector/.qmake.stash
 

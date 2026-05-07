@@ -731,3 +731,9 @@ bool ClipboardInjector::captureArea(int rx, int ry, int rw, int rh) {
     fprintf(stderr, "[clipboard-injector] captureArea: JSON written, ok=%d\n", ok);
     return ok;
 }
+
+void ClipboardInjector::requestCropOverlay() {
+    fprintf(stderr, "[clipboard-injector] requestCropOverlay() — "
+                    "emitting cropOverlayRequested\n");
+    emit cropOverlayRequested();
+}

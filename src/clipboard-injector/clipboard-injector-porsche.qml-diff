@@ -159,62 +159,22 @@ AFFECT /qt/qml/xofm/libs/toolbar/qml/Toolbar.qml
                             ClipboardInjector.captureAreaAsImage(_rx, _ry, _rw, _rh);
                     }
                 }
+
+                // v2.1 porsche-row trigger path. penSlots-porsche.qml-diff's
+                // cropRowBtn (in SettingsMenu.qml's scope) cannot reference
+                // cropOverlay by id — QML id resolution doesn't cross file
+                // scopes. It calls ClipboardInjector.requestCropOverlay()
+                // which emits cropOverlayRequested(); we listen here,
+                // where cropOverlay IS in scope, and flip its visibility.
+                Connections {
+                    target: ClipboardInjector
+                    function onCropOverlayRequested() {
+                        console.log("clipboard-injector: cropOverlayRequested received → cropOverlay.visible=true");
+                        cropOverlay.visible = true;
+                    }
+                }
             }
         }
 
     END TRAVERSE
-END AFFECT
-
-;-----------------------------------------------------------------------
-;Inject cropPaste into the "More tools" foldout. Tree-walks to find the
-;main-toolbar areaCaptureButton (objectName="cropPasteAreaCapture") and
-;triggers its existing onPressed handler so the crop overlay opens.
-;-----------------------------------------------------------------------
-AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
-
-; Inject into the 3-vertical-dots SettingsMenu (right-most toolbar icon).
-; Earlier injects targeted AdditionalEditingToolsMenu but that menu's
-; button rarely shows on rMPP — SettingsMenu is what users actually open.
-TRAVERSE ToolbarTool#root
-    TRAVERSE Component#settingsComponent
-        TRAVERSE ColumnLayout#content
-            LOCATE BEFORE ArkControls.FoldoutDivider
-            INSERT {
-                ToolbarTool {
-                    toolbar: root.toolbar
-                    type: ToolbarTool.Type.FoldoutButton
-                    Layout.fillWidth: true
-                    label: qsTr("Capture region")
-                    iconSource: "qrc:/ark/icons/crop"
-
-                    // Only show in the 3-dots foldout when the toolbar is
-                    // on the SHORT axis (where the main cropPaste button
-                    // is hidden). On the long axis the plugin is reachable
-                    // directly in the main toolbar, so the foldout entry
-                    // is redundant and we hide it.
-                    shown: (root.toolbar.parent && root.toolbar.parent.height > root.toolbar.parent.width)
-                        ? (root.toolbar.position === ToolbarPositioner.Position.Top
-                           || root.toolbar.position === ToolbarPositioner.Position.Bottom)
-                        : (root.toolbar.position === ToolbarPositioner.Position.Left
-                           || root.toolbar.position === ToolbarPositioner.Position.Right)
-
-                    onClicked: {
-                        function walk(item) {
-                            if (!item) return null;
-                            if (item.objectName === "cropPasteAreaCapture") return item;
-                            if (!item.children) return null;
-                            for (var i = 0; i < item.children.length; ++i) {
-                                var c = walk(item.children[i]);
-                                if (c) return c;
-                            }
-                            return null;
-                        }
-                        var btn = walk(root.toolbar);
-                        if (btn) btn.pressed();
-                    }
-                }
-            }
-        END TRAVERSE
-    END TRAVERSE
-END TRAVERSE
 END AFFECT

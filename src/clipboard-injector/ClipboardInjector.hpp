@@ -44,4 +44,21 @@ class ClipboardInjector : public QObject
         // first invocation per process lifetime; subsequent calls are quiet.
         Q_INVOKABLE QList<std::shared_ptr<SceneItem>> captureAreaAsImage(
                 int rx, int ry, int rw, int rh);
+
+        // v2.1: porsche-row trigger path. The bundled cropPaste qmd's
+        // `cropOverlay` lives in Toolbar.qml's FocusScope#root scope.
+        // From SettingsMenu.qml (where penSlots-porsche injects its
+        // 3-button row) we cannot reach cropOverlay by id — QML id
+        // resolution doesn't cross file scopes. Tree-walking root.toolbar
+        // and emitting `pressed` on the inline areaCaptureButton broke
+        // empirically on porsche short-axis (contributed to a bank
+        // flip 2026-05-08), so this is the singleton-mediated alternative:
+        // the row calls ClipboardInjector.requestCropOverlay(); the
+        // bundled qmd has a Connections block in Toolbar.qml's scope
+        // that listens for cropOverlayRequested() and sets
+        // cropOverlay.visible = true where the id IS in scope.
+        Q_INVOKABLE void requestCropOverlay();
+
+    Q_SIGNALS:
+        void cropOverlayRequested();
 };

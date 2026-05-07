@@ -1,4 +1,4 @@
-version 0.1.0
+version 0.2.0
 
 depends-on qt-resource-rebuilder:0.2.0
 depends-on framebuffer-spy:0.2.0
@@ -6,4 +6,5 @@ depends-on framebuffer-spy:0.2.0
 import?         framebuffer-spy$getFramebufferConfig
 import?         framebuffer-spy$refreshFramebuffer
 import?         qt-resource-rebuilder$qmldiff_add_external_diff
-resource        clipboard_injector:clipboard-injector.qmd
+resource        clipboard_injector_ferrari:clipboard-injector-ferrari.qmd
+resource        clipboard_injector_porsche:clipboard-injector-porsche.qmd

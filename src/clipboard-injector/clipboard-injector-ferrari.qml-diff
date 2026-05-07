@@ -1,0 +1,228 @@
+AFFECT /qt/qml/xofm/libs/toolbar/qml/Toolbar.qml
+    IMPORT common 1.0
+    IMPORT dev.pragmatically.clipboardinjector 0.1
+    
+    TRAVERSE FocusScope > Item#toolbar > GridLayout
+        LOCATE AFTER Repeater[.model=`toolbarProvider.editingTools`]
+        INSERT {
+            ToolbarTool {
+                id: areaCaptureButton
+                objectName: "cropPasteAreaCapture"
+                toolbar: root
+                type: ToolbarTool.Type.ToolbarButton
+                minimumFoldoutWidth: 0
+
+                iconSource: "qrc:/ark/icons/crop"
+                enabled: true
+                // Long axis only — on short axis (portrait Top/Bottom,
+                // landscape Left/Right) this hides and is reachable via
+                // xochitl's native AdditionalEditingToolsMenu (the 3-dots
+                // "More tools" foldout). The button stays in the QML tree
+                // (visible:false), so the foldout entry's tree-walk by
+                // objectName="cropPasteAreaCapture" still finds it.
+                visible: root.expanded && (
+                    (root.parent && root.parent.height > root.parent.width)
+                        ? (root.position === ToolbarPositioner.Position.Left
+                           || root.position === ToolbarPositioner.Position.Right)
+                        : (root.position === ToolbarPositioner.Position.Top
+                           || root.position === ToolbarPositioner.Position.Bottom)
+                )
+
+                onPressed: {
+                    cropOverlay.visible = true;
+                }
+            }
+        }
+    END TRAVERSE
+
+    TRAVERSE FocusScope#root
+        LOCATE AFTER ALL
+        INSERT {
+            Item {
+                id: cropOverlay
+                parent: sceneView
+                anchors.fill: parent
+                z: 99999
+                visible: false
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: "black"
+                    opacity: 0.3
+                }
+
+                property real startX: 0
+                property real startY: 0
+                property real endX: 0
+                property real endY: 0
+                property bool isDragging: false
+
+                Rectangle {
+                    id: selectionBox
+                    color: "transparent"
+                    border.color: "white"
+                    border.width: 2
+                    visible: cropOverlay.isDragging
+                    x: Math.min(cropOverlay.startX, cropOverlay.endX)
+                    y: Math.min(cropOverlay.startY, cropOverlay.endY)
+                    width: Math.abs(cropOverlay.endX - cropOverlay.startX)
+                    height: Math.abs(cropOverlay.endY - cropOverlay.startY)
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    preventStealing: true
+
+                    onPressed: (mouse) => {
+                        cropOverlay.startX = mouse.x;
+                        cropOverlay.startY = mouse.y;
+                        cropOverlay.endX = mouse.x;
+                        cropOverlay.endY = mouse.y;
+                        cropOverlay.isDragging = true;
+                    }
+
+                    onPositionChanged: (mouse) => {
+                        cropOverlay.endX = mouse.x;
+                        cropOverlay.endY = mouse.y;
+                    }
+
+                    onReleased: (mouse) => {
+                        cropOverlay.isDragging = false;
+                        cropOverlay.visible = false;
+
+                        var rw = Math.abs(cropOverlay.endX - cropOverlay.startX);
+                        var rh = Math.abs(cropOverlay.endY - cropOverlay.startY);
+
+                        if (rw > 10 && rh > 10) {
+                            var rx = Math.min(cropOverlay.startX, cropOverlay.endX);
+                            var ry = Math.min(cropOverlay.startY, cropOverlay.endY);
+
+                            // Defer one paint cycle so the framebuffer no longer
+                            // contains cropOverlay (white selection box + 30% black
+                            // tint). cropOverlay.visible = false above is async; the
+                            // Timer is the qmldiff-friendly equivalent of QQuickWindow
+                            // frameSwapped (which would need a QtQuick.Window import
+                            // injected into Toolbar.qml). 50ms is well above eink
+                            // refresh latency on rMPP/Move.
+                            captureDeferTimer._rx = rx;
+                            captureDeferTimer._ry = ry;
+                            captureDeferTimer._rw = rw;
+                            captureDeferTimer._rh = rh;
+                            captureDeferTimer.start();
+                        }
+                    }
+                }
+
+                Timer {
+                    id: captureDeferTimer
+                    interval: 50
+                    repeat: false
+                    property int _rx: 0
+                    property int _ry: 0
+                    property int _rw: 0
+                    property int _rh: 0
+                    property bool hasSceneLineItemVtable: false
+
+                    // Bootstrap the SceneLineItem vtable by having xochitl
+                    // construct + select a real line via its native path,
+                    // then steal the vtable pointer from that item. Run
+                    // once per process. Only used for stroke-trace fallback;
+                    // v1.6's color path doesn't need this because it reuses
+                    // the SceneImageItem vtable directly via custom-vtable swap.
+                    function ensureVtablePtr() {
+                        if (hasSceneLineItemVtable) return;
+                        sceneController.clearSelectedItems();
+                        ClipboardInjector.sleepMs(10);
+                        sceneController.addDrawingLine(ClipboardInjector.createLine(Qt.point(-5, -10), Qt.point(5, -10)));
+                        ClipboardInjector.sleepMs(10);
+                        sceneController.selectWithLine(ClipboardInjector.createCircle(Qt.point(0, -10), 10));
+                        ClipboardInjector.sleepMs(10);
+                        hasSceneLineItemVtable = ClipboardInjector.setupVtablePtr(sceneController.cloneSelectedItems(sceneController.currentLayer, sceneView.defaultScale));
+                        sceneController.deleteSelectedItems(sceneController.currentLayer);
+                        sceneController.clearSelectedItems();
+                    }
+
+                    onTriggered: {
+                        // v1.6c diagnostic: drop the conditional + stroke-trace
+                        // fallback entirely. Always push imgItems to Clipboard.
+                        //
+                        // v1.6a/b both saw the QML else-branch fire despite
+                        // captureAreaAsImage returning 1 item — meaning either
+                        // imgItems.length is undefined under QML/JS bridging of
+                        // QList<shared_ptr<SceneItem>>, or qt-resource-rebuilder
+                        // mangled `length`. Either way, conditioning on .length
+                        // is unreliable. Drop the fallback for gate 3 so paste
+                        // either succeeds (image renders) or paste is empty
+                        // (clear signal that something else is wrong, no
+                        // stroke-trace clobbering the diagnosis).
+                        Clipboard.items =
+                            ClipboardInjector.captureAreaAsImage(_rx, _ry, _rw, _rh);
+                    }
+                }
+            }
+        }
+
+    END TRAVERSE
+END AFFECT
+
+;-----------------------------------------------------------------------
+;Inject cropPaste into the "More tools" foldout. Tree-walks to find the
+;main-toolbar areaCaptureButton (objectName="cropPasteAreaCapture") and
+;triggers its existing onPressed handler so the crop overlay opens.
+;-----------------------------------------------------------------------
+AFFECT /qt/qml/xofm/libs/toolbar/qml/SettingsMenu.qml
+
+; Inject into the 3-vertical-dots SettingsMenu (right-most toolbar icon).
+; Earlier injects targeted AdditionalEditingToolsMenu but that menu's
+; button rarely shows on rMPP — SettingsMenu is what users actually open.
+TRAVERSE ToolbarTool#root
+    TRAVERSE Component#settingsComponent
+        TRAVERSE ColumnLayout#content
+            LOCATE BEFORE ArkControls.FoldoutDivider
+            INSERT {
+                ToolbarTool {
+                    toolbar: root.toolbar
+                    type: ToolbarTool.Type.FoldoutButton
+                    Layout.fillWidth: true
+                    label: qsTr("Capture region")
+                    iconSource: "qrc:/ark/icons/crop"
+
+                    // Only show in the 3-dots foldout when the toolbar is
+                    // on the SHORT axis (where the main cropPaste button
+                    // is hidden). On the long axis the plugin is reachable
+                    // directly in the main toolbar, so the foldout entry
+                    // is redundant and we hide it.
+                    shown: (root.toolbar.parent && root.toolbar.parent.height > root.toolbar.parent.width)
+                        ? (root.toolbar.position === ToolbarPositioner.Position.Top
+                           || root.toolbar.position === ToolbarPositioner.Position.Bottom)
+                        : (root.toolbar.position === ToolbarPositioner.Position.Left
+                           || root.toolbar.position === ToolbarPositioner.Position.Right)
+
+                    onClicked: {
+                        function walk(item) {
+                            if (!item) return null;
+                            if (item.objectName === "cropPasteAreaCapture") return item;
+                            if (!item.children) return null;
+                            for (var i = 0; i < item.children.length; ++i) {
+                                var c = walk(item.children[i]);
+                                if (c) return c;
+                            }
+                            return null;
+                        }
+                        var btn = walk(root.toolbar);
+                        if (btn) btn.pressed();
+                        // Dismiss the 3-dots foldout after activating the
+                        // overlay. closeFoldout / toolbar.closeFoldout are
+                        // baked-in xochitl Toolbar API (verified via
+                        // hashtab grep). Same call pattern penSlots-porsche
+                        // uses on its row buttons.
+                        if (root.toolbar && root.toolbar.closeFoldout) {
+                            root.toolbar.closeFoldout();
+                        }
+                    }
+                }
+            }
+        END TRAVERSE
+    END TRAVERSE
+END TRAVERSE
+END AFFECT

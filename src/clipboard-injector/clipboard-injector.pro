@@ -12,7 +12,7 @@ XOVI_DIR = build/xovi
 
 xoviextension.target = build/xovi/xovi.c
 xoviextension.commands = mkdir -p $$XOVI_DIR && python3 $$(XOVI_REPO)/util/xovigen.py -o $$XOVI_DIR/xovi.c -H $$XOVI_DIR/xovi.h clipboard-injector.xovi
-xoviextension.depends = clipboard-injector.xovi clipboard-injector.qmd
+xoviextension.depends = clipboard-injector.xovi clipboard-injector-ferrari.qmd clipboard-injector-porsche.qmd
 
 QMAKE_EXTRA_TARGETS += xoviextension
 PRE_TARGETDEPS += $$XOVI_DIR/xovi.c
